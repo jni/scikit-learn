@@ -1,16 +1,18 @@
 cimport cython
 
-import numpy as np
 cimport numpy as cnp
+import numpy as np
 cnp.import_array()
 
-cpdef int count_ones(cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] a):
+@cython.boundscheck(False)
+cdef cnp.float64_t count_ones(cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] a):
     cdef int i
-    cdef int count
-    for i in range(len(a)):
+    cdef cnp.float64_t count
+    for i in range(a.shape[0]):
         if a[i] == 1: count += 1
     return count
 
+@cython.boundscheck(False)
 cpdef cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] continuous_confusion(
         cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] sorted_y_true,
         cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] sorted_probas_pred):
@@ -20,8 +22,7 @@ cpdef cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] continuous_confusion(
     cdef int num_samples = sorted_y_true.shape[0]
     cdef int it = 0, itp = 1, itn = 2, ifp = 3, ifn = 4
     cdef cnp.float64_t pr = sorted_probas_pred[0], tp = 0, \
-        tn = (sorted_y_true != 1).astype(np.float64).sum(), \
-        fp = 0, fn = float(num_samples) - tn
+        fp = 0, fn = count_ones(sorted_y_true), tn = num_samples - fn
     cdef cnp.ndarray[cnp.float64_t, ndim=2, mode='c'] confusion
     confusion = np.zeros((len(sorted_y_true), 5), dtype=np.float64)
     for i in range(num_samples):
@@ -37,6 +38,5 @@ cpdef cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] continuous_confusion(
         confusion[i, 2] = tn
         confusion[i, 3] = fp
         confusion[i, 4] = fn
-    cdef cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] thresholds
     thresholds, idxs = np.unique(sorted_probas_pred, True)
     return confusion[idxs]

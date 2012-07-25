@@ -4,7 +4,8 @@ from Cython.Distutils import build_ext
 
 import numpy as np
 
-exts = [Extension("_metrics", ["_metrics.pyx"])]
+exts = [Extension("sklearn.metrics._metrics", 
+                ["_metrics.pyx"])]
 
 setup(
     cmdclass={'build_ext': build_ext},
