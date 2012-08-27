@@ -1,14 +1,17 @@
-from distutils.core import setup
-from distutils.extension import Extension
-from Cython.Distutils import build_ext
+import numpy
+from numpy.distutils.misc_util import Configuration
 
-import numpy as np
 
-exts = [Extension("sklearn.metrics._metrics", 
-                ["_metrics.pyx"])]
+def configuration(parent_package="", top_path=None):
+    config = Configuration("_metrics", parent_package, top_path)
+    config.add_extension("_metrics",
+                         sources=["_metrics.c"],
+                         include_dirs=[numpy.get_include()])
 
-setup(
-    cmdclass={'build_ext': build_ext},
-    ext_modules=exts,
-    include_dirs=[np.get_include()]
-)
+    config.add_subpackage("tests")
+
+    return config
+
+if __name__ == "__main__":
+    from numpy.distutils.core import setup
+    setup(**configuration().todict())
