@@ -3,7 +3,7 @@ from numpy.distutils.misc_util import Configuration
 
 
 def configuration(parent_package="", top_path=None):
-    config = Configuration("_metrics", parent_package, top_path)
+    config = Configuration("metrics", parent_package, top_path)
     config.add_extension("_metrics",
                          sources=["_metrics.c"],
                          include_dirs=[numpy.get_include()])
