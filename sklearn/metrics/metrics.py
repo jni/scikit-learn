@@ -16,7 +16,7 @@ import numpy as np
 
 from ..utils import check_arrays
 from ..utils import deprecated
-
+from . import _metrics
 
 def unique_labels(*lists_of_labels):
     """Extract an ordered array of unique labels"""
@@ -78,6 +78,15 @@ def confusion_matrix(y_true, y_pred, labels=None):
 
     return CM
 
+def roc_curve_fast(y_true, y_score):
+    y_true = y_true.astype(np.float64)
+    y_score = y_score.astype(np.float64)
+    rank = np.argsort(y_score)
+    conf = _metrics.continuous_confusion(y_true[rank], y_score[rank])
+    fpr = conf[:, 3] / conf[:, 2:4].sum(axis=1)
+    tpr = conf[:, 1] / conf[:, 1:5:3].sum(axis=1)
+    thresholds = conf[:, 0]
+    return fpr, tpr, thresholds
 
 def roc_curve(y_true, y_score):
     """compute Receiver operating characteristic (ROC)
