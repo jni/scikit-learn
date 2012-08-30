@@ -17,10 +17,12 @@ cpdef cnp.ndarray[cnp.float64_t, ndim=1, mode='c'] continuous_confusion(
     tp = (sorted_y_true == 1.0).astype(np.float).sum()
     fp = num_samples - tp
     cdef cnp.ndarray[cnp.float64_t, ndim=2, mode='c'] confusion
-    confusion = np.zeros((len(sorted_y_true), 5), dtype=np.float64)
-    for i in range(num_samples):
-        pr = sorted_probas_pred[i]
-        if sorted_y_true[i] == 1:
+    confusion = np.zeros((len(sorted_y_true)+1, 5), dtype=np.float64)
+    confusion[0] = pr, tp, tn, fp, fn
+    for i in range(1, num_samples+1):
+        print i
+        pr = sorted_probas_pred[i-1]
+        if sorted_y_true[i-1] == 1:
             tp -= 1
             fn += 1
         else:
